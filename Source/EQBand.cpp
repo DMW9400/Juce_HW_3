@@ -12,6 +12,7 @@
 #include <JuceHeader.h>
 
 EQBand::EQBand()
+    : numChannels(0), sampleRate(44100), frequency(1000.0f), gain(1.0f)
 {
     addAndMakeVisible(bandSlider);
     
@@ -30,8 +31,8 @@ void EQBand::resized()
     bandSlider.setBounds(getLocalBounds());
 }
 
-void EQBand::initializeVTS(juce::AudioProcessorValueTreeState& vts){
-    gainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "GAIN_PARAM_ID", bandSlider);
+void EQBand::initializeVTS(juce::AudioProcessorValueTreeState& vts,  const juce::String& paramID){
+    gainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, paramID, bandSlider);
 }
 
 void EQBand::prepare (float frequency, int sampleRate, float gain){
@@ -74,6 +75,19 @@ void EQBand::sliderValueChanged(juce::Slider* slider)
         
         // Update filter coefficients without reinitializing the entire filter setup
         prepare(frequency, sampleRate, newGain);
+    }
+}
+
+void EQBand::setGain(float newGain)
+{
+    gain = newGain;
+    
+    // Update filter coefficients with the new gain
+    auto coefficients = juce::IIRCoefficients::makePeakFilter(sampleRate, frequency, 1.0f, gain);
+    
+    for (auto& f : filter)
+    {
+        f.setCoefficients(coefficients);
     }
 }
 
