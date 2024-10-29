@@ -31,6 +31,11 @@ EQBand::EQBand()
     
 }
 
+EQBand::~EQBand()
+{
+    // Destructor remains empty as smart pointers manage resources
+}
+
 void EQBand::resized()
 {
     bandSlider.setBounds(getLocalBounds());
@@ -102,4 +107,13 @@ void EQBand::reset()
     {
         f.reset();
     }
+}
+
+// Added paint method definition
+void EQBand::paint(juce::Graphics& g)
+{
+    // Fill the background with a light grey color
+    g.fillAll(juce::Colours::lightgrey);
+    
+    // Optional: Add any custom painting here (e.g., border, indicators)
 }

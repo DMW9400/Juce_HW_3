@@ -26,6 +26,9 @@ public:
     float getFrequency() const { return frequency; }
     float getGain() const { return gain; }
     void setGain(float newGain);
+    
+    void paint(juce::Graphics& g) override; 
+    
 private:
     std::vector<juce::IIRFilter> filter;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> gainAttachment;

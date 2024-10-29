@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="f4q6Cb" name="PS03_graphicEQ" projectType="audioplug" useAppConfig="0"
+<JUCERPROJECT id="f4q6Cb" name="PS03-graphicEQ" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
-  <MAINGROUP id="mvEkBA" name="PS03_graphicEQ">
+  <MAINGROUP id="mvEkBA" name="PS03-graphicEQ">
     <GROUP id="{E0AFA04D-94CC-0678-86FD-E7E444A5E3A1}" name="Source">
       <FILE id="W4aWFk" name="EQBand.cpp" compile="1" resource="0" file="Source/EQBand.cpp"/>
       <FILE id="S1Omi1" name="EQBand.h" compile="0" resource="0" file="Source/EQBand.h"/>

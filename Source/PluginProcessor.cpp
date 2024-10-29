@@ -50,7 +50,7 @@ parameters(*this, nullptr, "Parameters",{
     }
 
     // Initialize the parameter state
-    parameters.state = juce::ValueTree("Parameters");
+//    parameters.state = juce::ValueTree("Parameters");
 }
 PS03_graphicEQAudioProcessor::~PS03_graphicEQAudioProcessor()
 {
@@ -125,7 +125,6 @@ void PS03_graphicEQAudioProcessor::prepareToPlay (double sampleRate, int samples
     // initialisation that you need..
     
     // Update sampleRate and prepare each EQBand with the correct number of channels
-    size_t numChannels = getTotalNumInputChannels();
 
     // Example center frequencies for the 10 bands
     std::array<float, 10> centerFrequencies = {32.0f, 63.0f, 125.0f, 250.0f, 500.0f,
@@ -194,11 +193,14 @@ void PS03_graphicEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffe
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
+    
+    // Create an AudioBlock from the buffer
+    juce::dsp::AudioBlock<float> audioBlock(buffer);
 
-        // ..do something to the data...
+    // Process each EQBand
+    for (int i = 0; i < 10; ++i)
+    {
+        eqBands[i].process(audioBlock);
     }
 }
 
