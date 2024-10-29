@@ -24,6 +24,11 @@ EQBand::EQBand()
     bandSlider.addListener(this);
     
     gain = 1.0f;
+    
+    addAndMakeVisible(bandLabel);
+    bandLabel.setText("Gain", juce::dontSendNotification);
+    bandLabel.attachToComponent(&bandSlider, false);
+    
 }
 
 void EQBand::resized()

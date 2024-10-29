@@ -53,6 +53,12 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+    
+    // Public EQBand array
+    EQBand eqBands[10];
+
+    // AudioProcessorValueTreeState for parameter management
+    juce::AudioProcessorValueTreeState parameters;
 
 private:
     //==============================================================================

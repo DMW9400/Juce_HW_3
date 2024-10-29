@@ -19,11 +19,39 @@ PS03_graphicEQAudioProcessor::PS03_graphicEQAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
 #endif
+parameters(*this, nullptr, "Parameters",{
+    // Add 10 gain parameters for each EQ band
+    std::make_unique<juce::AudioParameterFloat>("GainParam_0", "32Hz Gain", 0.0f, 2.0f, 1.0f),
+    std::make_unique<juce::AudioParameterFloat>("GainParam_1", "63Hz Gain", 0.0f, 2.0f, 1.0f),
+    std::make_unique<juce::AudioParameterFloat>("GainParam_2", "125Hz Gain", 0.0f, 2.0f, 1.0f),
+    std::make_unique<juce::AudioParameterFloat>("GainParam_3", "250Hz Gain", 0.0f, 2.0f, 1.0f),
+    std::make_unique<juce::AudioParameterFloat>("GainParam_4", "500Hz Gain", 0.0f, 2.0f, 1.0f),
+    std::make_unique<juce::AudioParameterFloat>("GainParam_5", "1kHz Gain", 0.0f, 2.0f, 1.0f),
+    std::make_unique<juce::AudioParameterFloat>("GainParam_6", "2kHz Gain", 0.0f, 2.0f, 1.0f),
+    std::make_unique<juce::AudioParameterFloat>("GainParam_7", "4kHz Gain", 0.0f, 2.0f, 1.0f),
+    std::make_unique<juce::AudioParameterFloat>("GainParam_8", "8kHz Gain", 0.0f, 2.0f, 1.0f),
+    std::make_unique<juce::AudioParameterFloat>("GainParam_9", "16kHz Gain", 0.0f, 2.0f, 1.0f)
+})
 {
-}
+    // Example center frequencies for the 10 bands
+    std::array<float, 10> centerFrequencies = {32.0f, 63.0f, 125.0f, 250.0f, 500.0f,
+                                              1000.0f, 2000.0f, 4000.0f, 8000.0f, 16000.0f};
 
+    for (int i = 0; i < 10; ++i)
+    {
+        // Initialize each EQBand with its center frequency
+        eqBands[i].prepare(centerFrequencies[i], 44100, 1.0f); // sampleRate and numChannels will be updated in prepareToPlay
+
+        // Attach each EQBand's slider to its corresponding parameter
+        juce::String paramID = "GainParam_" + juce::String(i);
+        eqBands[i].initializeVTS(parameters, paramID);
+    }
+
+    // Initialize the parameter state
+    parameters.state = juce::ValueTree("Parameters");
+}
 PS03_graphicEQAudioProcessor::~PS03_graphicEQAudioProcessor()
 {
 }
@@ -95,6 +123,22 @@ void PS03_graphicEQAudioProcessor::prepareToPlay (double sampleRate, int samples
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+    
+    // Update sampleRate and prepare each EQBand with the correct number of channels
+    size_t numChannels = getTotalNumInputChannels();
+
+    // Example center frequencies for the 10 bands
+    std::array<float, 10> centerFrequencies = {32.0f, 63.0f, 125.0f, 250.0f, 500.0f,
+                                              1000.0f, 2000.0f, 4000.0f, 8000.0f, 16000.0f};
+
+    for (int i = 0; i < 10; ++i)
+    {
+        // Retrieve current gain from parameters
+        float currentGain = *parameters.getRawParameterValue("GainParam_" + juce::String(i));
+
+        // Re-prepare EQBand with updated sampleRate and numChannels
+        eqBands[i].prepare(centerFrequencies[i], static_cast<int>(sampleRate), currentGain);
+    }
 }
 
 void PS03_graphicEQAudioProcessor::releaseResources()
@@ -175,12 +219,31 @@ void PS03_graphicEQAudioProcessor::getStateInformation (juce::MemoryBlock& destD
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+    
+    // Save the parameters state
+    juce::MemoryOutputStream stream(destData, true);
+    parameters.state.writeToStream(stream);
 }
 
 void PS03_graphicEQAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+    
+    // Restore the parameters state
+       juce::ValueTree tree = juce::ValueTree::readFromData(data, static_cast<size_t>(sizeInBytes));
+
+       if (tree.isValid())
+       {
+           parameters.state = tree;
+
+           // Update EQBands with restored parameters
+           for (int i = 0; i < 10; ++i)
+           {
+               float currentGain = *parameters.getRawParameterValue("GainParam_" + juce::String(i));
+               eqBands[i].setGain(currentGain);
+           }
+       }
 }
 
 //==============================================================================
